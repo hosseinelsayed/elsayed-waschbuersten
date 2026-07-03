@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reaktionstest Game</title>
+
+<!-- 🔥 GOOGLE TAG MANAGER (HEAD) -->
+<script>
+window.dataLayer = window.dataLayer || [];
+</script>
+
+<!-- 👉 HIER DEIN GTM SNIPPET EINSETZEN -->
+<!-- Beispiel:
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id=GTM-XXXX';f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-XXXX');</script>
+-->
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #d32f2f;
+    color: white;
+    text-align: center;
+    user-select: none;
+    transition: 0.2s;
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 22px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 GOOGLE TAG MANAGER (BODY) -->
+<noscript>
+<!-- GTM noscript kommt hier rein -->
+</noscript>
+
+<div>
+    <h1>⚡ Reaktionstest</h1>
+    <p>Drücke START und warte auf GRÜN</p>
+
+    <button id="startBtn">Start</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+
+window.dataLayer = window.dataLayer || [];
+
+let startTime;
+let timeout;
+let waiting = false;
+let ready = false;
+
+const btn = document.getElementById("startBtn");
+const result = document.getElementById("result");
+const body = document.body;
+
+/* =========================
+   🚀 START GAME
+========================= */
+btn.onclick = startGame;
+
+function startGame() {
+
+    dataLayer.push({
+        event: "reaction_start"
+    });
+
+    result.innerHTML = "";
+    body.style.background = "#d32f2f";
+
+    btn.style.display = "none";
+
+    waiting = true;
+    ready = false;
+
+    let delay = Math.random() * 4000 + 2000;
+
+    timeout = setTimeout(() => {
+
+        body.style.background = "#2e7d32";
+
+        startTime = performance.now();
+
+        ready = true;
+        waiting = false;
+
+    }, delay);
+}
+
+/* =========================
+   ⌨️ USER INPUT
+========================= */
+document.addEventListener("keydown", (e) => {
+
+    if (e.code !== "Space") return;
+
+    e.preventDefault();
+
+    /* ❌ ZU FRÜH */
+    if (waiting) {
+
+        clearTimeout(timeout);
+
+        dataLayer.push({
+            event: "reaction_too_early"
+        });
+
+        body.style.background = "#b71c1c";
+        result.innerHTML = "❌ Zu früh!";
+
+        btn.style.display = "inline-block";
+        waiting = false;
+
+        return;
+    }
+
+    /* ✅ RICHTIG */
+    if (ready) {
+
+        let reactionTime = Math.round(performance.now() - startTime);
+
+        dataLayer.push({
+            event: "reaction_done",
+            reaction_time: reactionTime
+        });
+
+        body.style.background = "#1565c0";
+
+        result.innerHTML =
+            "⏱ Reaktionszeit: <b>" + reactionTime + " ms</b>";
+
+        ready = false;
+        btn.style.display = "inline-block";
+    }
+
+});
+
+</script>
+
+</body>
+</html>
